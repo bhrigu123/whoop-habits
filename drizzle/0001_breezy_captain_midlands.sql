@@ -1,0 +1,1 @@
+ALTER TABLE "whoop_workouts" ALTER COLUMN "sport_id" DROP NOT NULL;
