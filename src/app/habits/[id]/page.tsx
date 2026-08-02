@@ -17,6 +17,7 @@ import {
 import { todayInTimezone } from "@/lib/whoop/dates";
 import { GridLegend, MonthGrid, YearGrid } from "@/components/habits/period-grids";
 import { HabitRowMenu } from "@/components/habits/habit-row-menu";
+import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
@@ -147,6 +148,8 @@ export default async function HabitDetailPage({
       </div>
 
       <GridLegend showRest={habit.type === "workout_frequency"} />
+
+      <SiteFooter showDelete />
     </main>
   );
 }

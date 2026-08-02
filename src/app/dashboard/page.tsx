@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth/session";
 import { signOut } from "@/lib/auth/actions";
 import { getSyncStatus } from "@/lib/sync/engine";
 import { getUserSports, getWeekBoard } from "@/lib/habits/data";
+import { SiteFooter } from "@/components/site-footer";
 import { SyncStatusCard } from "@/components/sync-status-card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WeekBoard } from "@/components/habits/week-board";
@@ -54,6 +55,8 @@ export default async function DashboardPage({
       <WeekBoard data={board} sports={sports} />
 
       <SyncStatusCard initial={status} />
+
+      <SiteFooter showDelete />
     </main>
   );
 }

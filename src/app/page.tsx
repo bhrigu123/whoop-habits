@@ -101,6 +101,9 @@ export default async function Home({
               Privacy
             </Link>
           </p>
+          <p className="text-xs text-muted-foreground/70">
+            Not affiliated with WHOOP
+          </p>
         </div>
       </div>
     </main>

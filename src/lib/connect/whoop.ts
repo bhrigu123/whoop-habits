@@ -3,6 +3,7 @@ import "server-only";
 import {
   deleteTokenCacheEntry,
   getToken,
+  revokeToken,
   startAuthorization,
   type ConnectTokenParams,
 } from "@vercel/connect";
@@ -50,4 +51,11 @@ export async function getWhoopToken(subjectId: string): Promise<string> {
 /** Drop the cached token so the next getWhoopToken() call fetches fresh. */
 export function invalidateWhoopToken(subjectId: string): void {
   deleteTokenCacheEntry(WHOOP_CONNECTOR, tokenParams(subjectId));
+}
+
+/** Revoke the user's WHOOP grant at Connect (and the provider, if supported). */
+export async function revokeWhoopGrant(subjectId: string): Promise<void> {
+  await revokeToken(WHOOP_CONNECTOR, {
+    subject: { type: "user", id: subjectId },
+  });
 }

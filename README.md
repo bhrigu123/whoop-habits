@@ -74,3 +74,11 @@ The `VERCEL_OIDC_TOKEN` from `vercel env pull` expires - re-pull if Connect call
 ## Privacy
 
 Read-only WHOOP access, no selling, no ads, no third parties beyond Vercel/Neon. Full policy at [`/privacy`](src/app/privacy/page.tsx).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+## Disclaimer
+
+Not affiliated with, endorsed by, or sponsored by WHOOP. WHOOP is a trademark of Whoop, Inc. This is an independent project built on the public WHOOP API.

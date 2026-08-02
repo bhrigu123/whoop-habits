@@ -2,10 +2,12 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
 
-import { destroySession } from "@/lib/auth/session";
+import { destroySession, requireUser } from "@/lib/auth/session";
 import { PENDING_COOKIE, type PendingAuth } from "@/lib/auth/pending";
-import { startWhoopAuthorization } from "@/lib/connect/whoop";
+import { revokeWhoopGrant, startWhoopAuthorization } from "@/lib/connect/whoop";
+import { db, users } from "@/lib/db";
 
 function safeTimezone(value: unknown): string {
   if (typeof value !== "string" || !value) return "UTC";
@@ -48,5 +50,32 @@ export async function startWhoopAuth(formData: FormData): Promise<void> {
 
 export async function signOut(): Promise<void> {
   await destroySession();
+  redirect("/");
+}
+
+/**
+ * Full account deletion: revoke the WHOOP grant, then drop the user row.
+ * Every other table (sessions, habits, checks, synced records, sync state)
+ * cascades from users. Reconnecting later starts a brand-new account.
+ */
+export async function deleteMyData(): Promise<{ error?: string }> {
+  const user = await requireUser();
+
+  try {
+    await revokeWhoopGrant(user.connectSubjectId);
+  } catch (error) {
+    // Deletion should not be blocked by a revocation hiccup; the grant
+    // becomes orphaned and mints nothing once the user row is gone.
+    console.error("WHOOP grant revocation failed, continuing:", error);
+  }
+
+  try {
+    await destroySession();
+    await db.delete(users).where(eq(users.id, user.id));
+  } catch (error) {
+    console.error("Account deletion failed:", error);
+    return { error: "Deletion failed. Please try again." };
+  }
+
   redirect("/");
 }

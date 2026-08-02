@@ -102,11 +102,11 @@ export default function PrivacyPage() {
 
       <Section title="Deleting your data">
         <p>
-          You can revoke Whoop Habits&apos; access at any time from the WHOOP
-          app (Settings → Integrations) or your WHOOP account page - this
-          immediately stops all syncing. To have your stored data fully
-          deleted, contact us (below) and we&apos;ll remove your account and
-          all associated records.
+          Use <span className="text-foreground">Delete my data</span> in the
+          menu at the bottom of the app. It removes your account, habits, and
+          every synced record immediately, and revokes the WHOOP connection.
+          You can also revoke access from the WHOOP app (Settings →
+          Integrations) at any time, which stops all syncing.
         </p>
       </Section>
 
@@ -121,6 +121,14 @@ export default function PrivacyPage() {
             github.com/bhrigu123/whoop-habits
           </a>
           .
+        </p>
+      </Section>
+
+      <Section title="Affiliation">
+        <p>
+          Whoop Habits is an independent project built on the public WHOOP API.
+          It is not affiliated with, endorsed by, or sponsored by WHOOP. WHOOP
+          is a trademark of Whoop, Inc.
         </p>
       </Section>
 
