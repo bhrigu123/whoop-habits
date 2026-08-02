@@ -3,6 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth/session";
+import { signupsFull } from "@/lib/auth/signups";
+import { X_URL } from "@/lib/links";
+import { XIcon } from "@/components/icons";
 import { ConnectWhoopButton } from "@/components/connect-whoop-button";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -33,7 +36,13 @@ export default async function Home({
   if (user) redirect("/dashboard");
 
   const { error } = await searchParams;
-  const errorMessage = error ? ERROR_MESSAGES[error] : undefined;
+
+  // "limit" comes back from the callback when WHOOP turned the grant down while
+  // we were already at the cap. Either way the notice below says it, so it
+  // replaces the generic error rather than stacking with it.
+  const capReached = error === "limit" || (await signupsFull());
+  const errorMessage =
+    error && error !== "limit" ? ERROR_MESSAGES[error] : undefined;
 
   return (
     <main className="relative flex flex-1 flex-col bg-gradient-to-b from-background via-background to-emerald-100/60 px-6 pt-16 pb-4 dark:to-emerald-950/25">
@@ -97,6 +106,25 @@ export default async function Home({
             <p className="text-sm text-red-400" role="alert">
               {errorMessage}
             </p>
+          )}
+          {capReached && (
+            <div className="w-full space-y-2 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3.5 text-sm">
+              <p className="font-medium">New signups are full</p>
+              <p className="text-muted-foreground">
+                We&apos;ve reached the maximum number of users WHOOP allows
+                before app approval, and we&apos;re working on raising the
+                limit. Already connected? You can still sign in above.
+              </p>
+              <a
+                href={X_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              >
+                Follow for updates
+                <XIcon className="size-3" />
+              </a>
+            </div>
           )}
           <p className="text-xs text-muted-foreground">
             Read-only · disconnect anytime ·{" "}

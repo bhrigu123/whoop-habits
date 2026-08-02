@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { UserAuthorizationRequiredError } from "@vercel/connect";
 
 import { createSession } from "@/lib/auth/session";
+import { signupsFull } from "@/lib/auth/signups";
 import { PENDING_COOKIE, parsePendingAuth } from "@/lib/auth/pending";
 import { getWhoopToken } from "@/lib/connect/whoop";
 import { getBasicProfile } from "@/lib/whoop/client";
@@ -57,7 +58,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     await getWhoopToken(pending.subjectId);
   } catch (error) {
     if (error instanceof UserAuthorizationRequiredError) {
-      return fail("denied");
+      // A plain cancel and a WHOOP-side refusal look identical here. Once we're
+      // at the user cap that's the likelier cause, so prefer that message.
+      return fail((await signupsFull()) ? "limit" : "denied");
     }
     console.error("WHOOP token exchange failed:", error);
     return fail("connect_failed");
