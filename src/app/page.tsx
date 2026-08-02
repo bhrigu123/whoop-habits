@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth/session";
 import { ConnectWhoopButton } from "@/components/connect-whoop-button";
+import { SiteFooter } from "@/components/site-footer";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -11,6 +12,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   denied: "WHOOP authorization wasn't completed. Try connecting again.",
   connect_failed: "Something went wrong finishing the connection. Please retry.",
   profile_failed: "Connected, but we couldn't read your WHOOP profile. Please retry.",
+  reconnect:
+    "Your WHOOP access was disconnected, so we signed you out. Connect again to resume syncing.",
 };
 
 const SAMPLE_WEEK = [
@@ -33,11 +36,11 @@ export default async function Home({
   const errorMessage = error ? ERROR_MESSAGES[error] : undefined;
 
   return (
-    <main className="relative flex flex-1 flex-col items-center justify-center bg-gradient-to-b from-background via-background to-emerald-100/60 px-6 py-16 dark:to-emerald-950/25">
+    <main className="relative flex flex-1 flex-col bg-gradient-to-b from-background via-background to-emerald-100/60 px-6 pt-16 pb-4 dark:to-emerald-950/25">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <div className="flex w-full max-w-md flex-col items-center gap-8 text-center">
+      <div className="m-auto flex w-full max-w-md flex-col items-center gap-8 py-8 text-center">
         <div className="flex flex-col items-center gap-3">
           <Image
             src="/logo.png"
@@ -101,11 +104,10 @@ export default async function Home({
               Privacy
             </Link>
           </p>
-          <p className="text-xs text-muted-foreground/70">
-            Not affiliated with WHOOP
-          </p>
         </div>
       </div>
+
+      <SiteFooter showDisclaimer />
     </main>
   );
 }

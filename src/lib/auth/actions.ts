@@ -54,20 +54,18 @@ export async function signOut(): Promise<void> {
 }
 
 /**
- * Full account deletion: revoke the WHOOP grant, then drop the user row.
- * Every other table (sessions, habits, checks, synced records, sync state)
- * cascades from users. Reconnecting later starts a brand-new account.
+ * Full account deletion: drop the user row first, then revoke the WHOOP
+ * grant. Every other table (sessions, habits, checks, synced records, sync
+ * state) cascades from users. Reconnecting later starts a brand-new account.
+ *
+ * Revocation goes last on purpose: revoking first and then failing to
+ * delete would leave a live account pointing at a dead grant, breaking
+ * every sync. The reverse failure (deleted but not revoked) only leaves an
+ * orphaned grant that nothing references.
  */
 export async function deleteMyData(): Promise<{ error?: string }> {
   const user = await requireUser();
-
-  try {
-    await revokeWhoopGrant(user.connectSubjectId);
-  } catch (error) {
-    // Deletion should not be blocked by a revocation hiccup; the grant
-    // becomes orphaned and mints nothing once the user row is gone.
-    console.error("WHOOP grant revocation failed, continuing:", error);
-  }
+  const subjectId = user.connectSubjectId;
 
   try {
     await destroySession();
@@ -75,6 +73,12 @@ export async function deleteMyData(): Promise<{ error?: string }> {
   } catch (error) {
     console.error("Account deletion failed:", error);
     return { error: "Deletion failed. Please try again." };
+  }
+
+  try {
+    await revokeWhoopGrant(subjectId);
+  } catch (error) {
+    console.error("WHOOP grant revocation failed after deletion:", error);
   }
 
   redirect("/");

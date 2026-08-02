@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const GITHUB_URL = "https://github.com/bhrigu123/whoop-habits";
-const X_URL = "https://x.com/bhrigu123";
+const X_URL = "https://x.com/Bhrigu_Sr";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -42,7 +42,13 @@ function XIcon({ className }: { className?: string }) {
 const iconLinkClasses =
   "flex size-8 items-center justify-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground";
 
-export function SiteFooter({ showDelete = false }: { showDelete?: boolean }) {
+export function SiteFooter({
+  showDelete = false,
+  showDisclaimer = false,
+}: {
+  showDelete?: boolean;
+  showDisclaimer?: boolean;
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -56,6 +62,7 @@ export function SiteFooter({ showDelete = false }: { showDelete?: boolean }) {
 
   return (
     <footer className="mt-auto flex items-center justify-end gap-0.5 pt-8">
+      
       <a
         href={GITHUB_URL}
         target="_blank"
@@ -74,6 +81,11 @@ export function SiteFooter({ showDelete = false }: { showDelete?: boolean }) {
       >
         <XIcon className="size-3.5" />
       </a>
+      {showDisclaimer && (
+        <span className="mr-1.5 text-xs text-muted-foreground/70">
+          (Not affiliated with WHOOP)
+        </span>
+      )}
 
       {showDelete && (
         <>

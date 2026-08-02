@@ -39,7 +39,17 @@ export function SyncStatusCard({ initial }: { initial: SyncStatusPayload }) {
       try {
         const res = await fetch("/api/sync", { method: "POST" });
         if (res.status === 401) {
-          router.push("/");
+          // Session ended server-side (expired, or the WHOOP grant is gone
+          // and /api/sync signed us out). Full navigation, not router.push:
+          // the client route cache still holds the dashboard.
+          let reconnect = false;
+          try {
+            const body = (await res.json()) as { error?: string };
+            reconnect = body.error === "reconnect_required";
+          } catch {
+            // no body - treat as a plain expired session
+          }
+          window.location.assign(reconnect ? "/?error=reconnect" : "/");
           return;
         }
         if (res.ok) {

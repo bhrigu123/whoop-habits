@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { after } from "next/server";
+import { UserAuthorizationRequiredError } from "@vercel/connect";
 
-import { getCurrentUser } from "@/lib/auth/session";
+import { destroySession, getCurrentUser } from "@/lib/auth/session";
 import {
   needsBackfill,
   runBackfillChunk,
@@ -26,6 +27,18 @@ export async function POST(): Promise<NextResponse> {
   try {
     status = await runForegroundSync(user);
   } catch (error) {
+    if (error instanceof UserAuthorizationRequiredError) {
+      // The WHOOP grant behind this account is gone (revoked from the
+      // WHOOP app, or a partial account deletion). The session can't do
+      // anything useful without it: end it and tell the client to send
+      // the user back to the connect screen.
+      console.error("WHOOP grant gone for user", user.id, "- signing out");
+      await destroySession();
+      return NextResponse.json(
+        { error: "reconnect_required" },
+        { status: 401 },
+      );
+    }
     console.error("Foreground sync failed:", error);
     return NextResponse.json({ error: "sync_failed" }, { status: 502 });
   }
