@@ -3,6 +3,7 @@ import type {
   SleepDurationConfig,
   WorkoutFrequencyConfig,
 } from "@/lib/db/schema";
+import { addDays, mondayOf, weekDates } from "./dates";
 
 /**
  * Pure habit evaluation. No IO here: callers assemble the inputs, these
@@ -33,6 +34,43 @@ export interface WeeklyRollup {
   achieved: number;
   target: number;
   state: "met" | "missed" | "in_progress";
+}
+
+export interface HabitStreak {
+  count: number;
+  unit: "day" | "week";
+}
+
+/**
+ * Count back from today using all available history and the current config.
+ * An unfinished current period preserves the streak through the previous one;
+ * any earlier period without a met goal ends it (including missing data).
+ */
+export function currentStreak(
+  habit: Pick<Habit, "id" | "type" | "config">,
+  inputs: EvaluationInputs,
+): HabitStreak {
+  const weekly = habit.type === "workout_frequency";
+  const step = weekly ? 7 : 1;
+  let period = weekly ? mondayOf(inputs.today) : inputs.today;
+  const isMet = (date: string): boolean => {
+    const cells = evaluateHabitDays(
+      habit,
+      weekly ? weekDates(date) : [date],
+      inputs,
+    );
+    return weekly
+      ? weeklyRollup(habit, cells, inputs.today)?.state === "met"
+      : cells[0].status === "met";
+  };
+
+  if (!isMet(period)) period = addDays(period, -step);
+  let count = 0;
+  while (isMet(period)) {
+    count++;
+    period = addDays(period, -step);
+  }
+  return { count, unit: weekly ? "week" : "day" };
 }
 
 export interface SleepDayInput {

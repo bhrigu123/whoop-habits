@@ -4,12 +4,14 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { db, habits, type Habit, type User, type WorkoutFrequencyConfig } from "@/lib/db";
 import {
+  currentStreak,
   evaluateHabitDays,
   weeklyRollup,
   type HabitDayCell,
 } from "./engine";
 import { buildEvaluationInputs } from "./data";
 import { addDays, mondayOf, monthDates, weekDates } from "./dates";
+import { todayInTimezone } from "@/lib/whoop/dates";
 
 export interface HabitStat {
   label: string;
@@ -62,7 +64,14 @@ export async function getHabitPeriod(
   const fetchDates: string[] = [];
   for (let d = fetchStart; d <= fetchEnd; d = addDays(d, 1)) fetchDates.push(d);
 
-  const inputs = await buildEvaluationInputs(user, [habit], fetchDates);
+  // Current streak uses all saved history through today, even when viewing
+  // an older month/year. Period metrics still use only the displayed dates.
+  const today = todayInTimezone(user.timezone);
+  const historyEnd = fetchEnd > today ? fetchEnd : today;
+  const inputs = await buildEvaluationInputs(
+    user, [habit], [fetchStart, historyEnd], true,
+  );
+  inputs.today = today;
   const cellsByDate = new Map(
     evaluateHabitDays(habit, fetchDates, inputs).map((c) => [c.date, c]),
   );
@@ -122,6 +131,12 @@ export async function getHabitPeriod(
       }
     }
   }
+
+  const streak = currentStreak(habit, inputs);
+  stats.push({
+    label: "Current streak",
+    value: `${streak.count} ${streak.unit}${streak.count === 1 ? "" : "s"}`,
+  });
 
   return { habit, cells, today: inputs.today, stats };
 }

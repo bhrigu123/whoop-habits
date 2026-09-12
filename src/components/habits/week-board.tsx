@@ -17,7 +17,7 @@ const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /** Shared by the header row and every habit row so columns stay aligned. */
 const GRID_COLS =
-  "grid-cols-[minmax(11rem,1fr)_repeat(7,2.75rem)_3.5rem]";
+  "grid-cols-[minmax(11rem,1fr)_repeat(7,2.75rem)_4rem_5.5rem]";
 
 function configSummary(row: WeekBoardData["rows"][number]): string {
   const { habit } = row;
@@ -114,9 +114,9 @@ export function WeekBoard({
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border bg-card/60 p-4 shadow-sm">
-          <div className="flex min-w-[600px] flex-col gap-1">
+          <div className="flex min-w-[720px] flex-col gap-1">
             <div className={`grid ${GRID_COLS} items-center gap-x-1 px-2 pb-2`}>
-              <span />
+              <span className="text-xs text-muted-foreground">Habit</span>
               {data.days.map((date, i) => {
                 const isToday = date === data.today;
                 return (
@@ -137,7 +137,8 @@ export function WeekBoard({
                   </span>
                 );
               })}
-              <span />
+              <span className="text-center text-xs text-muted-foreground">Week<br />progress</span>
+              <span className="text-center text-xs text-muted-foreground">Current<br />streak</span>
             </div>
 
             {data.rows.map((row) => {
@@ -195,7 +196,7 @@ export function WeekBoard({
                   )}
 
                   <span className="text-center">
-                    {row.weekly && (
+                    {row.weekly ? (
                       <Badge
                         variant="secondary"
                         className={`tabular-nums ${
@@ -208,13 +209,35 @@ export function WeekBoard({
                       >
                         {row.weekly.achieved}/{row.weekly.target}
                       </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="tabular-nums text-muted-foreground">
+                        {row.cells.filter((cell) => cell.status === "met").length}/7
+                      </Badge>
                     )}
+                  </span>
+                  <span className="text-center">
+                    <Badge
+                      variant="secondary"
+                      className={`tabular-nums ${
+                        row.streak.count > 0
+                          ? "bg-emerald-500/15 text-emerald-400"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {row.streak.count} {row.streak.unit}{row.streak.count === 1 ? "" : "s"}
+                    </Badge>
                   </span>
                 </div>
               );
             })}
           </div>
         </div>
+      )}
+      {data.rows.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Streaks are current as of today, based on saved data. An unfinished day
+          or week keeps your previous streak alive. Weeks run Monday–Sunday.
+        </p>
       )}
     </section>
   );
