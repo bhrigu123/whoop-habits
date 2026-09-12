@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, between, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, between, eq, inArray, isNull, lte } from "drizzle-orm";
 
 import {
   db,
@@ -14,9 +14,11 @@ import {
 import { todayInTimezone } from "@/lib/whoop/dates";
 import {
   evaluateHabitDays,
+  currentStreak,
   weeklyRollup,
   type EvaluationInputs,
   type HabitDayCell,
+  type HabitStreak,
   type WeeklyRollup,
 } from "./engine";
 import { isValidDateString, mondayOf, weekDates } from "./dates";
@@ -25,6 +27,7 @@ export interface WeekBoardRow {
   habit: Habit;
   cells: HabitDayCell[];
   weekly?: WeeklyRollup;
+  streak: HabitStreak;
 }
 
 export interface WeekBoardData {
@@ -58,6 +61,7 @@ export async function buildEvaluationInputs(
   user: User,
   habitList: Habit[],
   dates: string[],
+  includeHistory = false,
 ): Promise<EvaluationInputs> {
   const first = dates[0];
   const last = dates[dates.length - 1];
@@ -74,7 +78,9 @@ export async function buildEvaluationInputs(
       .where(
         and(
           eq(whoopSleeps.userId, user.id),
-          between(whoopSleeps.localDate, first, last),
+          includeHistory
+            ? lte(whoopSleeps.localDate, last)
+            : between(whoopSleeps.localDate, first, last),
         ),
       ),
     db
@@ -86,17 +92,25 @@ export async function buildEvaluationInputs(
       .where(
         and(
           eq(whoopWorkouts.userId, user.id),
-          between(whoopWorkouts.localDate, first, last),
+          includeHistory
+            ? lte(whoopWorkouts.localDate, last)
+            : between(whoopWorkouts.localDate, first, last),
         ),
       ),
     habitIds.length > 0
       ? db
-          .select()
+          .select({
+            habitId: manualChecks.habitId,
+            localDate: manualChecks.localDate,
+            checked: manualChecks.checked,
+          })
           .from(manualChecks)
           .where(
             and(
               inArray(manualChecks.habitId, habitIds),
-              between(manualChecks.localDate, first, last),
+              includeHistory
+                ? lte(manualChecks.localDate, last)
+                : between(manualChecks.localDate, first, last),
             ),
           )
       : Promise.resolve([]),
@@ -140,11 +154,22 @@ export async function getWeekBoard(
   const days = weekDates(weekStart);
 
   const habitList = await getActiveHabits(user.id);
-  const inputs = await buildEvaluationInputs(user, habitList, days);
+  if (habitList.length === 0) return { weekStart, days, today, rows: [] };
+
+  // Reuse the same three batched queries for the board and streaks. Fetch all
+  // saved history so long streaks aren't cut off by the displayed week.
+  const end = days[6] > today ? days[6] : today;
+  const inputs = await buildEvaluationInputs(user, habitList, [days[0], end], true);
+  inputs.today = today;
 
   const rows: WeekBoardRow[] = habitList.map((habit) => {
     const cells = evaluateHabitDays(habit, days, inputs);
-    return { habit, cells, weekly: weeklyRollup(habit, cells, inputs.today) };
+    return {
+      habit,
+      cells,
+      weekly: weeklyRollup(habit, cells, inputs.today),
+      streak: currentStreak(habit, inputs),
+    };
   });
 
   return { weekStart, days, today: inputs.today, rows };
