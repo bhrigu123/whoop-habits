@@ -233,12 +233,6 @@ export function WeekBoard({
           </div>
         </div>
       )}
-      {data.rows.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          Streaks are current as of today, based on saved data. An unfinished day
-          or week keeps your previous streak alive. Weeks run Monday–Sunday.
-        </p>
-      )}
     </section>
   );
 }
