@@ -67,7 +67,7 @@ export function MonthGrid({
   );
 }
 
-/** Year at a glance: 12 month rows × 31 day columns of tiny boxes. */
+/** Compact month rows; days wrap in sequence on narrow screens. */
 export function YearGrid({
   cells,
   today,
@@ -84,28 +84,30 @@ export function YearGrid({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <div className="mx-auto flex w-fit flex-col gap-[5px]">
-        {MONTH_SHORT_LABELS.map((label, i) => {
-          const monthCells = byMonth.get(i + 1) ?? [];
-          return (
-            <div key={label} className="flex items-center gap-[5px]">
-              <span className="w-8 text-right text-[11px] text-muted-foreground">
-                {label}
-              </span>
+    <div className="mx-auto flex max-w-md flex-col gap-3 md:w-fit md:max-w-none md:gap-[5px]">
+      {MONTH_SHORT_LABELS.map((label, i) => {
+        const monthCells = byMonth.get(i + 1) ?? [];
+        return (
+          <div key={label} className="flex min-w-0 items-start gap-2 md:items-center md:gap-[5px]">
+            <h3 className="w-8 shrink-0 text-right text-[11px] leading-3 text-muted-foreground">
+              {label}
+            </h3>
+            <div className="flex min-w-0 flex-1 flex-wrap gap-0.5 md:flex-none md:flex-nowrap md:gap-[5px]">
               {monthCells.map((cell) => (
                 <span
                   key={cell.date}
+                  role="img"
+                  aria-label={`${cell.date}: ${cell.status}${cell.detail ? ` · ${cell.detail}` : ""}${cell.date === today ? " · Today" : ""}`}
                   title={`${cell.date}${cell.detail ? ` · ${cell.detail}` : ""}`}
-                  className={`size-3.5 rounded-[4px] ${boxClasses(cell.status)} ${
+                  className={`size-2.5 shrink-0 rounded-[2px] md:size-3.5 md:rounded-[4px] ${boxClasses(cell.status)} ${
                     cell.date === today ? "ring-1 ring-foreground/70" : ""
                   }`}
                 />
               ))}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
