@@ -39,12 +39,15 @@ export function ManualCell({ habitId, date, status }: ManualCellProps) {
     <button
       type="button"
       onClick={toggle}
+      disabled={isPending}
+      aria-pressed={checked}
+      aria-label={`${checked ? "Uncheck" : "Check off"} ${date}`}
       title={checked ? "Uncheck" : "Check off"}
       className={`mx-auto flex size-8 items-center justify-center rounded-lg text-sm transition-colors ${
         checked
-          ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+          ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/30"
           : showMiss
-            ? "bg-red-500/10 text-red-400/80 hover:bg-red-500/20"
+            ? "bg-red-500/10 text-red-700 dark:text-red-400/80 hover:bg-red-500/20"
             : "border border-dashed border-muted-foreground/30 text-transparent hover:border-emerald-500/60 hover:text-emerald-500/50"
       }`}
     >

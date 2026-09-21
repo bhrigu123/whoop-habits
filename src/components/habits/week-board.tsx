@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/navigation-link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { WeekBoardData } from "@/lib/habits/data";
@@ -17,7 +17,7 @@ const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /** Shared by the header row and every habit row so columns stay aligned. */
 const GRID_COLS =
-  "grid-cols-[minmax(11rem,1fr)_repeat(7,2.75rem)_4rem_5.5rem]";
+  "grid-cols-[10rem_repeat(7,2.75rem)_4rem_5.5rem] sm:grid-cols-[minmax(11rem,1fr)_repeat(7,2.75rem)_4rem_5.5rem]";
 
 function configSummary(row: WeekBoardData["rows"][number]): string {
   const { habit } = row;
@@ -43,13 +43,13 @@ function StaticCell({ cell }: { cell: HabitDayCell }) {
   switch (cell.status) {
     case "met":
       return (
-        <span className={`${base} bg-emerald-500/20 text-emerald-400`} title={cell.detail}>
+        <span className={`${base} bg-emerald-500/20 text-emerald-700 dark:text-emerald-400`} title={cell.detail}>
           ✓
         </span>
       );
     case "missed":
       return (
-        <span className={`${base} bg-red-500/10 text-red-400/80`} title={cell.detail}>
+        <span className={`${base} bg-red-500/10 text-red-700 dark:text-red-400/80`} title={cell.detail}>
           ✕
         </span>
       );
@@ -78,9 +78,10 @@ export function WeekBoard({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1">
           <Button variant="ghost" size="icon" className="size-8" nativeButton={false}
+            aria-label="Previous week"
             render={<Link href={`/dashboard?week=${addDays(data.weekStart, -7)}`} />}>
             <ChevronLeft className="size-4" />
           </Button>
@@ -88,6 +89,7 @@ export function WeekBoard({
             {formatWeekLabel(data.weekStart)}
           </span>
           <Button variant="ghost" size="icon" className="size-8" nativeButton={false}
+            aria-label="Next week"
             render={<Link href={`/dashboard?week=${addDays(data.weekStart, 7)}`} />}>
             <ChevronRight className="size-4" />
           </Button>
@@ -102,7 +104,7 @@ export function WeekBoard({
       </div>
 
       {data.rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed py-16 text-center">
           <span className="text-3xl">🌱</span>
           <p className="font-medium">No habits yet</p>
           <p className="max-w-sm text-sm text-muted-foreground">
@@ -113,22 +115,27 @@ export function WeekBoard({
           <NewHabitButton sports={sports} />
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border bg-card/60 p-4 shadow-sm">
-          <div className="flex min-w-[720px] flex-col gap-1">
-            <div className={`grid ${GRID_COLS} items-center gap-x-1 px-2 pb-2`}>
-              <span className="text-xs text-muted-foreground">Habit</span>
+        <div
+          role="region"
+          aria-label="Weekly habits, scroll to see all days"
+          tabIndex={0}
+          className="overflow-x-auto scroll-pl-40 rounded-lg border bg-card py-4 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:scroll-pl-0 sm:px-4"
+        >
+          <div className="flex min-w-[656px] sm:min-w-[720px] flex-col gap-1">
+            <div className={`grid ${GRID_COLS} items-center gap-x-1 sm:px-2 pb-2`}>
+              <span className="sticky left-0 z-10 flex self-stretch items-center border-r bg-card px-3 text-xs text-muted-foreground shadow-[4px_0_6px_-4px_rgb(0_0_0/0.2)] sm:static sm:border-0 sm:bg-transparent sm:px-0 sm:shadow-none">Habit</span>
               {data.days.map((date, i) => {
                 const isToday = date === data.today;
                 return (
                   <span
                     key={date}
                     className={`flex flex-col items-center text-xs ${
-                      isToday ? "font-semibold text-emerald-400" : "text-muted-foreground"
+                      isToday ? "font-semibold text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"
                     }`}
                   >
                     {DOW_LABELS[i]}
                     <span
-                      className={`mt-0.5 flex size-5 items-center justify-center rounded-full text-[11px] ${
+                      className={`mt-0.5 flex size-5 items-center justify-center rounded-sm text-[11px] ${
                         isToday ? "bg-emerald-500/20" : ""
                       }`}
                     >
@@ -146,23 +153,23 @@ export function WeekBoard({
               return (
                 <div
                   key={row.habit.id}
-                  className={`group/row grid ${GRID_COLS} items-center gap-x-1 rounded-xl px-2 py-2 transition-colors hover:bg-muted/40`}
+                  className={`group/row grid ${GRID_COLS} items-center gap-x-1 border-t sm:px-2 py-3 transition-colors hover:bg-muted/40`}
                 >
-                  <div className="flex min-w-0 items-center gap-1 pr-2">
+                  <div className="sticky left-0 z-10 -my-3 flex min-w-0 self-stretch items-center gap-1 border-r bg-card px-3 py-3 shadow-[4px_0_6px_-4px_rgb(0_0_0/0.2)] sm:static sm:my-0 sm:border-0 sm:bg-transparent sm:py-0 sm:pl-0 sm:pr-2 sm:shadow-none">
                     <Link
                       href={`/habits/${row.habit.id}`}
-                      title="Monthly & yearly view"
-                      className="flex min-w-0 flex-1 items-center gap-2.5"
+                      title={`${row.habit.name} · Monthly & yearly view`}
+                      className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5"
                     >
                       <span
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-lg transition-transform group-hover/row:scale-105 ${colors.iconBg}`}
+                        className={`flex size-7 sm:size-9 shrink-0 items-center justify-center rounded-lg text-lg ${colors.iconBg}`}
                       >
                         {row.habit.emoji}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1 text-sm font-medium">
-                          <span className="truncate">{row.habit.name}</span>
-                          <ChevronRight className="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover/row:opacity-100" />
+                          <span className="line-clamp-2 sm:block sm:truncate">{row.habit.name}</span>
+                          <ChevronRight className="hidden sm:block size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover/row:opacity-100" />
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {configSummary(row)}
@@ -201,9 +208,9 @@ export function WeekBoard({
                         variant="secondary"
                         className={`tabular-nums ${
                           row.weekly.state === "met"
-                            ? "bg-emerald-500/15 text-emerald-400"
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                             : row.weekly.state === "missed"
-                              ? "bg-red-500/10 text-red-400/80"
+                              ? "bg-red-500/10 text-red-700 dark:text-red-400/80"
                               : "text-muted-foreground"
                         }`}
                       >
@@ -220,7 +227,7 @@ export function WeekBoard({
                       variant="secondary"
                       className={`tabular-nums ${
                         row.streak.count > 0
-                          ? "bg-emerald-500/15 text-emerald-400"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                           : "text-muted-foreground"
                       }`}
                     >

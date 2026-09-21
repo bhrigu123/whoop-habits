@@ -44,7 +44,7 @@ export function SiteFooter({
   }
 
   return (
-    <footer className="mt-auto flex items-center justify-end gap-0.5 pt-8">
+    <footer className="mt-auto flex flex-wrap items-center justify-end gap-0.5 border-t pt-5">
       
       <a
         href={GITHUB_URL}

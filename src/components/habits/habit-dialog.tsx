@@ -165,7 +165,7 @@ export function HabitDialog({ mode, habit, sports, open, onOpenChange }: HabitDi
                 key={option.type}
                 type="button"
                 onClick={() => pickType(option)}
-                className="flex items-start gap-3 rounded-xl border p-4 text-left transition-colors hover:border-emerald-500/50 hover:bg-emerald-500/5"
+                className="flex items-start gap-3 rounded-md border p-4 text-left transition-colors hover:border-foreground/40 hover:bg-muted"
               >
                 <span className="text-2xl">{option.emoji}</span>
                 <span>
@@ -241,7 +241,7 @@ export function HabitDialog({ mode, habit, sports, open, onOpenChange }: HabitDi
                         onClick={() => setTimesPerWeek(n)}
                         className={`size-9 rounded-lg border text-sm font-medium transition-colors ${
                           timesPerWeek === n
-                            ? "border-emerald-500 bg-emerald-500/15 text-emerald-400"
+                            ? "border-foreground bg-muted text-foreground"
                             : "hover:bg-muted"
                         }`}
                       >
@@ -263,9 +263,9 @@ export function HabitDialog({ mode, habit, sports, open, onOpenChange }: HabitDi
                         key={sport}
                         type="button"
                         onClick={() => toggleSport(sport)}
-                        className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                        className={`rounded-md border px-3 py-1 text-sm transition-colors ${
                           selectedSports.includes(sport)
-                            ? "border-emerald-500 bg-emerald-500/15 text-emerald-400"
+                            ? "border-foreground bg-muted text-foreground"
                             : "hover:bg-muted"
                         }`}
                       >

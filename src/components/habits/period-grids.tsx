@@ -36,27 +36,27 @@ export function MonthGrid({
   const offset = (new Date(`${firstDate}T12:00:00Z`).getUTCDay() + 6) % 7;
 
   return (
-    <div className="mx-auto grid w-fit grid-cols-7 gap-1.5">
+    <div className="mx-auto grid w-fit grid-cols-7 gap-1 sm:gap-1.5">
       {DOW_LABELS.map((label, i) => (
         <span
           key={i}
-          className="flex size-10 items-center justify-center text-xs font-medium text-muted-foreground"
+          className="flex size-8 sm:size-10 items-center justify-center text-xs font-medium text-muted-foreground"
         >
           {label}
         </span>
       ))}
       {Array.from({ length: offset }, (_, i) => (
-        <span key={`pad-${i}`} className="size-10" />
+        <span key={`pad-${i}`} className="size-8 sm:size-10" />
       ))}
       {cells.map((cell) => (
         <span
           key={cell.date}
           title={`${cell.date}${cell.detail ? ` · ${cell.detail}` : ""}`}
-          className={`flex size-10 items-center justify-center rounded-lg text-xs font-medium tabular-nums ${boxClasses(cell.status)} ${
+          className={`flex size-8 sm:size-10 items-center justify-center rounded-lg text-xs font-medium tabular-nums ${boxClasses(cell.status)} ${
             cell.status === "met"
               ? "text-emerald-950 font-semibold"
               : cell.status === "missed"
-                ? "text-red-50 font-semibold"
+                ? "text-red-950 dark:text-red-50 font-semibold"
                 : "text-muted-foreground"
           } ${cell.date === today ? "ring-2 ring-foreground/70" : ""}`}
         >
@@ -118,7 +118,7 @@ export function GridLegend({ showRest }: { showRest: boolean }) {
     { label: "No data", className: "bg-muted/40" },
   ];
   return (
-    <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+    <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
       {items.map((item) => (
         <span key={item.label} className="flex items-center gap-1.5">
           <span className={`size-3 rounded-[4px] ${item.className}`} />

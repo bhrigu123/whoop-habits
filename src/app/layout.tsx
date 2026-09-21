@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
+import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
+          <SiteHeader />
           {children}
           <Toaster richColors />
         </ThemeProvider>

@@ -96,7 +96,7 @@ export function SyncStatusCard({ initial }: { initial: SyncStatusPayload }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border bg-card/60 px-4 py-3 text-sm">
+    <div className="flex items-center gap-3 rounded-md border bg-card px-4 py-3 text-sm">
       {failed ? (
         <>
           <TriangleAlert className="size-4 shrink-0 text-amber-500" />

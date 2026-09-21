@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/navigation-link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -18,7 +18,6 @@ import { todayInTimezone } from "@/lib/whoop/dates";
 import { GridLegend, MonthGrid, YearGrid } from "@/components/habits/period-grids";
 import { HabitRowMenu } from "@/components/habits/habit-row-menu";
 import { SiteFooter } from "@/components/site-footer";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 export default async function HabitDetailPage({
@@ -58,24 +57,23 @@ export default async function HabitDetailPage({
       : `${baseUrl}?view=year&y=${Number(year) + 1}`;
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-6 py-8">
-      <header className="flex items-center justify-between">
+    <main className="mx-auto flex w-full max-w-[968px] flex-1 flex-col gap-8 px-5 py-8">
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="ghost" size="sm" className="gap-1.5 -ml-2" nativeButton={false}
           render={<Link href="/dashboard" />}>
           <ArrowLeft className="size-4" /> Board
         </Button>
-        <ThemeToggle />
       </header>
 
       <div className="flex items-center gap-3">
         <span
-          className={`flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl ${colors.iconBg}`}
+          className={`flex size-12 shrink-0 items-center justify-center rounded-md text-2xl ${colors.iconBg}`}
         >
           {habit.emoji}
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h1 className="truncate text-xl font-semibold">{habit.name}</h1>
+            <h1 className="truncate app-title">{habit.name}</h1>
             <HabitRowMenu
               habit={{
                 id: habit.id,
@@ -103,7 +101,7 @@ export default async function HabitDetailPage({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex rounded-lg border p-0.5">
           <Button
             variant={view === "month" ? "secondary" : "ghost"}
@@ -126,6 +124,7 @@ export default async function HabitDetailPage({
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="size-8" nativeButton={false}
+            aria-label="Previous period"
             render={<Link href={prevHref} />}>
             <ChevronLeft className="size-4" />
           </Button>
@@ -133,13 +132,14 @@ export default async function HabitDetailPage({
             {view === "month" ? formatMonthLabel(month) : year}
           </span>
           <Button variant="ghost" size="icon" className="size-8" nativeButton={false}
+            aria-label="Next period"
             render={<Link href={nextHref} />}>
             <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-card/60 p-6">
+      <div className="rounded-lg border bg-card p-3 sm:p-6">
         {view === "month" ? (
           <MonthGrid cells={period.cells} today={period.today} />
         ) : (

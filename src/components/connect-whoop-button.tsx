@@ -14,7 +14,7 @@ function SubmitButton() {
       type="submit"
       size="lg"
       disabled={pending}
-      className="h-12 gap-2.5 rounded-full px-8 text-base font-semibold"
+      className="h-11 gap-2.5 px-5 text-sm font-medium"
     >
       {pending ? (
         <>
